@@ -3,9 +3,10 @@ class window.AppView extends Backbone.View
       <button class="hit-button game-button">Hit</button>
       <button class="stand-button game-button">Stand</button>
       <button class="restart">Restart</button>
-      <div class="game-status"></div>
       <div class="player-hand-container"></div>
       <div class="dealer-hand-container"></div>
+      <div class="player-win">You won!</div>
+      <div class="dealer-win">Dealer won!</div>
     '
   showButton: ->
     if @model.get('gameOver') then 'inline-block' else 'none'
@@ -14,18 +15,40 @@ class window.AppView extends Backbone.View
   events:
     'click .hit-button': -> @model.get('playerHand').hit()
     'click .stand-button': -> @model.get('playerHand').stand()
+    'click .restart': -> @restart()
+
 
   initialize: ->
-    @model.get('playerHand').on('busted', ->
-      $('.game-status').text('you losttttt!'))
-    @model.on('change:gameOver', @showRestart)
+    # @model.get('playerHand').on('busted', ->
+    #   $('.game-status').text('you losttttt!'))
+    @model.on('change:gameOver', @endOfGame, this)
 
     @render()
     @$('.restart').hide()
+    @$('.player-win').hide()
+    @$('.dealer-win').hide()
 
   showRestart: ->
     $('.restart').show()
     $('.game-button').hide()
+
+
+  endOfGame: ->
+    @showRestart()
+    playerScore = @getBestScore('playerHand')
+    dealerScore = @getBestScore('dealerHand')
+    if playerScore > 21 || (dealerScore < 22 && dealerScore > playerScore)
+      $('.dealer-win').show()
+    else
+      $('.player-win').show()
+
+  restart: ->
+    @model.initialize()
+    @initialize()
+
+  getBestScore: (target)->
+    finalScores = @model.get(target).scores()
+    if finalScores[1] <= 21 then finalScores[1] else finalScores[0]
 
 
   render: ->
