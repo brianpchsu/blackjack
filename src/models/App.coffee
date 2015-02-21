@@ -6,17 +6,35 @@ class window.App extends Backbone.Model
     dealerHand = deck.dealDealer()
     @set 'playerHand', deck.dealPlayer()
     @set 'dealerHand', dealerHand
-    @set 'gameOver', false
+    @set 'winner', null
+
+    app = this
 
     @get('playerHand').on('stand', =>
       dealerHand.at(0).flip()
       while dealerHand.minScore() < 17 then dealerHand.hit()
-      @set 'gameOver', true
+      app.endOfGame()
       )
 
     @get('playerHand').on('busted', =>
-      @set 'gameOver', true
+      console.log("busted here")
+      app.endOfGame()
       )
+
+
+  getBestScore: (target)->
+    finalScores = @get(target).scores()
+    if finalScores[1] <= 21 then finalScores[1] else finalScores[0]
+
+  endOfGame: ->
+    playerScore = @getBestScore('playerHand')
+    dealerScore = @getBestScore('dealerHand')
+    if playerScore > 21 || (dealerScore < 22 && dealerScore > playerScore)
+      @set 'winner', 'dealer'
+    else if playerScore == dealerScore
+      @set 'winner', 'tie'
+    else
+      @set 'winner', 'player'
 
 
 
