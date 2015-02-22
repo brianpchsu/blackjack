@@ -22,7 +22,6 @@ class window.AppView extends Backbone.View
     # @model.get('playerHand').on('busted', ->
     #   $('.game-status').text('you losttttt!'))
     @model.on('change:winner', @endOfGame, this)
-
     @render()
     @$('.restart').hide()
     @$('.player-win').hide()
@@ -37,8 +36,9 @@ class window.AppView extends Backbone.View
   endOfGame: ->
     @showRestart()
     winner = @model.get('winner')
-    console.log(winner)
     $('.' + winner + '-win').show()
+    swal({   title: "Sweet!",   text: "You won!",   imageUrl: "img/iwon.jpg" , imageSize: "465x327"}) if winner == 'player'
+    swal({   title: "Wah wuh :(",   text: "You lost",   imageUrl: "img/youlost.jpg" , imageSize: "500x328"}) if winner == 'dealer'
 
   restart: ->
     @model.initialize()
@@ -54,4 +54,5 @@ class window.AppView extends Backbone.View
     @$el.html @template()
     @$('.player-hand-container').html new HandView(collection: @model.get 'playerHand').el
     @$('.dealer-hand-container').html new HandView(collection: @model.get 'dealerHand').el
+
 
